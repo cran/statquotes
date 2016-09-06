@@ -1,0 +1,14 @@
+b25bda865682f9d3e13178664c7370ca *DESCRIPTION
+633cae6da5f3121afcc7637fda7f18dc *NAMESPACE
+13df181b4e241cf8b46ce392d58752a9 *NEWS
+6682a22eb890d4fd7c9d7f4c90d95f45 *R/quote_cloud.R
+d3949a7381589524aa01b746b01173d9 *R/quotes.R
+5dcb7dd2768a187585e994d22171c739 *R/search_quotes.R
+9ecb752c2a386b04113936486a3a79fb *R/statquote.R
+9dabd483b150d1a5ee63b9437a6c9db3 *data/quotes.RData
+a443a3d5c47b337d0bf877b5dcb8121b *inst/quotes.RData
+10ab53c971084da5111e1ee751e7395f *man/quote_cloud.Rd
+0da9b29ecde556d82b5794963ec4fb89 *man/quote_topics.Rd
+b3585d47d6c03be4d34d4057053d74f6 *man/quotes.Rd
+d56555902f90382ad5a34414d41fff1e *man/search_quotes.Rd
+5d4a4eac9e81a8f4f52af74d99110fb2 *man/statquote.Rd
