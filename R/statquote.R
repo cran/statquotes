@@ -1,9 +1,9 @@
-.sq.env <- new.env()
-
 #' @importFrom utils data
-data(quotes, package = 'statquotes', envir = .sq.env)
-
-.get.sq <- function() .sq.env$quotes
+.get.sq <- function(){
+  .sq.env <- new.env()
+  data(quotes, package = 'statquotes', envir = .sq.env)
+  .sq.env$quotes
+}
 
 #' Function to display a randomly chosen statistical quote
 #'
@@ -57,13 +57,12 @@ statquote <- function(ind, topic=NULL, source=NULL) {
     ind <- sample(1:n, 1)
 }
 	res <- data[ind,]
-	res <- list(text=res$text, source=res$source)
-  class(res) <- "statquote"
+  class(res) <- c("statquote", 'data.frame')
   return(res)
 }
 
 #' @rdname statquote
-#' @param x Default object for \code{print} method
+#' @param x object of class \code{'statquote'}
 #' @param width Optional column width parameter
 #' @param ... Other optional arguments
 #' @export
@@ -71,13 +70,48 @@ statquote <- function(ind, topic=NULL, source=NULL) {
 print.statquote <- function(x, width = NULL, ...) {
     if (is.null(width)) width <- 0.9 * getOption("width")
     if (width < 10) stop("'width' must be greater than 10", call.=FALSE)
-    x$source <- paste("---", x$source)
-    invisible(sapply(strwrap(x, width), cat, "\n"))
+    x <- x[ ,c('text', 'source')]
+    if (nrow(x) > 1){
+      for(i in 1L:nrow(x)){
+        print(x[i,], width=width, ...)
+        if(i < nrow(x)) cat('\n')
+      }
+    } else {
+      x$source <- paste("---", x$source)
+      sapply(strwrap(x, width), cat, "\n")
+    }
+    invisible()
+}
+
+#' @rdname statquote
+#' @param row.names see \code{\link{as.data.frame}}
+#' @param optional see \code{\link{as.data.frame}}
+#' @export
+
+as.data.frame.statquote <- function(x, row.names = NULL,
+                                    optional = FALSE, ...) {
+  class(x) <- 'data.frame'
+  x
 }
 
 #' List the topics of the quotes data base
+#' @param subtopics logical; if \code{TRUE} the subtopics are printed as well
+#'   with the associated topic
+#' @export
+#' @examples
+#' quote_topics()
+#' quote_topics(TRUE)
 
-quote_topics <- function() {
+quote_topics <- function(subtopics = FALSE) {
   data <- .get.sq()
-	levels(data[,"topic"])
+  ret <- levels(data[,"topic"])
+  if(subtopics){
+    subtopic_list <- lapply(ret, function(topic, data){
+      lev <- levels(droplevels(data$subtopic[data$topic == topic]))
+      data.frame(topic=topic, subtopic=lev)
+    }, data=data)
+    ret <- do.call(rbind, subtopic_list)
+    ret <- ret[ret$subtopic != "", ]
+  }
+  ret
 }
