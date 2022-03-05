@@ -2,20 +2,27 @@
 % Please edit documentation in R/search_quotes.R
 \name{search_quotes}
 \alias{search_quotes}
-\title{Function to search quote database}
+\alias{search_text}
+\alias{get_quotes}
+\title{Search the quote database for a string or regex pattern}
 \usage{
-search_quotes(search, fuzzy = FALSE, fields = c("topic", "subtopic", "text",
-  "source"), ...)
+search_quotes(search, ignore_case = TRUE, fuzzy = FALSE, fields = NULL, ...)
+
+search_text(search, fuzzy = FALSE, ...)
+
+get_quotes(search = ".*", ...)
 }
 \arguments{
 \item{search}{A character string, used to search the database. Regular
 expression characters are allowed.}
 
+\item{ignore_case}{Logical; If \code{TRUE}, matching is done without regard to case.}
+
 \item{fuzzy}{Logical; If \code{TRUE}, the function uses \code{\link[base]{agrep}} to allow approximate
 matches to the search string.}
 
 \item{fields}{A character vector pertaining to the particular fields to search. The
-default is to search everything: `c("topic", "subtopic", "text", "source")`.}
+default is to search everything: `c("topic", "subtopic", "text", "source", "TeXsource")`.}
 
 \item{...}{additional arguments passed to \code{\link[base]{agrep}} to fine-tune fuzzy
 search parameters.}
@@ -23,10 +30,16 @@ search parameters.}
 \value{
 A data frame (also with class \code{'statquote'})
   object containing all quotes that match the search parameters.
+
+A data frame (also with class \code{'statquote'})
+  object containing all quotes. This is meant to be assigned to name rather than printed.
 }
 \description{
 This function takes a search pattern (can use regular expressions) and returns all quotes
-that match the pattern. If fuzzy is FALSE, then only exact matches are returned (case sensitive).
+that match the pattern. By default all fields are included in the search.
+If fuzzy is FALSE, then only exact matches are returned (case sensitive).
+
+A convenient wrapper for search quotes that by default returns all quotes
 }
 \examples{
 search_quotes("^D") # regex to find all quotes that start with "D"
@@ -36,6 +49,10 @@ search_quotes("bad answer", fuzzy = TRUE) # fuzzy match
 # to a data.frame
 out <- search_quotes("bad answer", fuzzy = TRUE)
 as.data.frame(out)
+
+qdb <- get_quotes()
+nrow(qdb)
+names(qdb)
 
 }
 \seealso{

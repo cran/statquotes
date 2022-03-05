@@ -1,15 +1,17 @@
-#' Function to search quote database
+#' Search the quote database for a string or regex pattern
 #'
 #' This function takes a search pattern (can use regular expressions) and returns all quotes
-#' that match the pattern. If fuzzy is FALSE, then only exact matches are returned (case sensitive).
+#' that match the pattern. By default all fields are included in the search.
+#' If fuzzy is FALSE, then only exact matches are returned (case sensitive).
 #'
-#' @param search A character string, used to search the database. Regular
+#' @param search     A character string, used to search the database. Regular
 #'   expression characters are allowed.
-#' @param fuzzy Logical; If \code{TRUE}, the function uses \code{\link[base]{agrep}} to allow approximate
+#' @param ignore_case Logical; If \code{TRUE}, matching is done without regard to case.
+#' @param fuzzy      Logical; If \code{TRUE}, the function uses \code{\link[base]{agrep}} to allow approximate
 #'     matches to the search string.
-#' @param fields A character vector pertaining to the particular fields to search. The
-#'   default is to search everything: `c("topic", "subtopic", "text", "source")`.
-#' @param ... additional arguments passed to \code{\link[base]{agrep}} to fine-tune fuzzy
+#' @param fields     A character vector pertaining to the particular fields to search. The
+#'   default is to search everything: `c("topic", "subtopic", "text", "source", "TeXsource")`.
+#' @param ...        additional arguments passed to \code{\link[base]{agrep}} to fine-tune fuzzy
 #'   search parameters.
 #' @return A data frame (also with class \code{'statquote'})
 #'   object containing all quotes that match the search parameters.
@@ -25,10 +27,13 @@
 #' as.data.frame(out)
 #'
 
-search_quotes <- function(search, fuzzy=FALSE,
-                          fields = c("topic", "subtopic", "text", "source"),
+search_quotes <- function(search,
+                          ignore_case = TRUE,
+                          fuzzy = FALSE,
+                          fields = NULL,
                           ...) {
   data <- .get.sq()
+  if(is.null(fields)) fields <- colnames(data)
 
   if(missing(search))
     stop("No search parameters entered.", call.=FALSE)
@@ -37,12 +42,48 @@ search_quotes <- function(search, fuzzy=FALSE,
   cols <- colnames(merged)
   if (length(cols) > 1) merged <- do.call(paste, merged[,cols])
 
-  if(fuzzy) OK <- agrep(tolower(search), tolower(merged), ...)
+  if (isTRUE(ignore_case)) {
+    search <- tolower(search)
+    merged <- tolower(merged)
+  }
+  if(fuzzy) OK <- agrep(search, merged, ...)
   else OK <- which(str_detect(merged, search))
 
-  if (length(OK)) data <- data[OK,]
-  else stop("The search parameters \'", search, "\' did not match any items.")
+  if (length(OK)) {
+    data <- data[OK,]
+    class(data) <- c("statquote", 'data.frame')
+    return(data)
+  }
+  else message("The search string \'", search, "\' did not match any items.")
+}
 
-  class(data) <- c("statquote", 'data.frame')
-  return(data)
+#' Search the text field for a string
+#'
+#' @rdname search_quotes
+#' @export
+#'
+search_text <- function(search, fuzzy=FALSE,
+                        ...) {
+
+  search_quotes(search = search,
+                fuzzy = fuzzy,
+                fields = "text",
+                ...)
+}
+
+#' Retrieve the quotes database
+#'
+#' A convenient wrapper for search quotes that by default returns all quotes
+#'
+#' @return A data frame (also with class \code{'statquote'})
+#'   object containing all quotes. This is meant to be assigned to name rather than printed.
+#' @rdname search_quotes
+#' @export
+#' @examples
+#' qdb <- get_quotes()
+#' nrow(qdb)
+#' names(qdb)
+#'
+get_quotes <- function(search = ".*", ...) {
+  qt <- search_quotes(search, ...)
 }

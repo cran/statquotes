@@ -10,7 +10,8 @@
 #' This function displays a randomly statistical quote from
 #' a collection. The quotations are classified by topics
 #'
-#' @param ind Optional index of a quote; if missing a random value is sampled from
+#' @param ind Optional index of a quote, or a vector of such integer indices
+#'        If missing a random value is sampled from
 #'        the available quotations.
 #' @param topic A character string, used to select a subset of the quotes based
 #'        on the assigned topics.
@@ -26,7 +27,7 @@
 #'  \code{\link[fortunes:fortunes]{fortune}}
 #' @examples
 #'  set.seed(1234)
-#'  statquote()
+#'  statquote(123)
 #'  statquote(source="Tukey")
 #'  statquote(topic="science")
 #'  statquote(topic="history")
@@ -34,8 +35,15 @@
 
 statquote <- function(ind, topic=NULL, source=NULL) {
 
+  isInteger <-
+    function(x) is.numeric(x) && all.equal(x, as.integer(x))
+
 	data <- .get.sq()
-	if(!missing(ind)) stopifnot(ind > 0L && ind <= nrow(data))
+	if(!missing(ind)) {
+	  if (!isInteger(ind)) stop("ind must be an integer, not '", ind, "'")
+	  if (!(ind > 0L && ind <= nrow(data))) stop("ind must be between 1 and ", nrow(data))
+#	  stopifnot(ind > 0L && ind <= nrow(data))
+	  }
 
 	if(!is.null(topic) && missing(ind)) {
 	  merged <- with(data, paste(as.character(topic), as.character(subtopic)))
@@ -74,11 +82,13 @@ print.statquote <- function(x, width = NULL, ...) {
     if (nrow(x) > 1){
       for(i in 1L:nrow(x)){
         print(x[i,], width=width, ...)
-        if(i < nrow(x)) cat('\n')
       }
     } else {
       x$source <- paste("---", x$source)
-      sapply(strwrap(x, width), cat, "\n")
+      out <- c(paste0("\n", strwrap(x$text, width)),
+               paste0("\n", strwrap(x$source, width)))
+      sapply(out, cat)
+      cat("\n")
     }
     invisible()
 }
@@ -114,4 +124,55 @@ quote_topics <- function(subtopics = FALSE) {
     ret <- ret[ret$subtopic != "", ]
   }
   ret
+}
+
+#' Function coerces statquote objects to strings suitable for LaTeX
+#'
+#' This function coerces statquote objects to strings suitable for rendering in LaTeX.
+#' Quotes and (potential LaTeX) sources are placed within suitable "\code{epigraph}" output
+#' format via the \code{\link{sprintf}} function.
+#'
+#' @param quotes an object of class \code{statquote} returned from functions such as
+#'   \code{\link{search_quotes}} or \code{\link{statquote}}
+#'
+#' @param form structure of the LaTeX output for the text (first argument)
+#'   and source (second argument) passed to \code{\link{sprintf}}
+#'
+#' @return character vector of formatted LaTeX quotes
+#'
+#' @export
+#' @examples
+#'
+#' ll <- search_quotes("Tukey")
+#' as.latex(ll)
+#'
+
+as.latex <- function(quotes, form = "\\epigraph{%s}{%s}\n\n"){
+
+  stopifnot('statquote' %in% class(quotes))
+  #replace the common csv symbols with LaTeX versions
+  symbols2tex <- function(strings){
+    strings <- as.character(strings)
+    loc <- stringr::str_locate_all(strings, '\\*.?')
+    pick <- which(sapply(loc, length) > 0)
+    for(i in pick){
+      index <- seq(1, nrow(loc[[i]]), by=2)
+      for(j in length(index):1L)
+        stringr::str_sub(strings[i], loc[[i]][index[j], 1L], loc[[i]][index[j], 1L]) <- '\\emph{'
+    }
+    strings <- stringr::str_replace_all(strings, '\\*', '}')
+    strings <- stringr::str_replace_all(strings, ' \"', '``')
+    strings
+  }
+
+  topics <- unique(quotes$topic)
+  quotes$text <- symbols2tex(quotes$text)
+  quotes$source <- symbols2tex(quotes$source)
+  lines <- NULL
+  if(is.null(quotes$TeXsource)) quotes$TeXsource <- ""
+  for(i in 1:nrow(quotes)){
+    lines <- c(lines, sprintf(form, quotes$text[i],
+                              if(quotes$TeXsource[i] != "") quotes$TeXsource[i] else quotes$source[i]))
+  }
+  lines
 }
