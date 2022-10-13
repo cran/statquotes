@@ -4,54 +4,65 @@
 \alias{statquote}
 \alias{print.statquote}
 \alias{as.data.frame.statquote}
-\title{Function to display a randomly chosen statistical quote}
+\title{Display a randomly chosen statistical quote.}
 \usage{
-statquote(ind, topic = NULL, source = NULL)
+statquote(ind = NULL, pattern = NULL, tag = NULL, source = NULL, topic = NULL)
 
-\method{print}{statquote}(x, width = NULL, ...)
+\method{print}{statquote}(x, cite = FALSE, width = NULL, ...)
 
 \method{as.data.frame}{statquote}(x, row.names = NULL, optional = FALSE, ...)
 }
 \arguments{
-\item{ind}{Optional index of a quote, or a vector of such integer indices
-If missing a random value is sampled from
-the available quotations.}
+\item{ind}{Integer or character.
+If 'ind' is missing, a random quote is chosen from all quotations.
+If 'ind' is specified and is an integer, return the ind^th quote.
+If 'ind' is specified and is character, use it as the 'pattern'.}
 
-\item{topic}{A character string, used to select a subset of the quotes based
-on the assigned topics.}
+\item{pattern}{Character string. Quotes are subset to to those which
+match the pattern in the quote text.}
 
-\item{source}{A character string, used to select a subset of the quotes based
-on the source for the quote.}
+\item{tag}{Character string. Quotes are subset to those matching the
+specified tag.}
+
+\item{source}{Character string. Quotes are subset to those matching
+the specified source (person).}
+
+\item{topic}{Deprecated. Use 'tag' instead. Only kept for backward compatability.}
 
 \item{x}{object of class \code{'statquote'}}
 
-\item{width}{Optional column width parameter}
+\item{cite}{logical; should the \code{cite} field be printed?}
 
-\item{...}{Other optional arguments}
+\item{width}{Optional print width parameter}
+
+\item{...}{Other optional arguments, unused here}
 
 \item{row.names}{see \code{\link{as.data.frame}}}
 
 \item{optional}{see \code{\link{as.data.frame}}}
 }
 \value{
-A character vector containing one randomly selected quote
-   from the included data set. It is of class \code{statquote} for
-   which an S3 print method will be invoked.
+A character vector containing one quote.
+It is of class \code{statquote} for which an S3 print method will be invoked, and for which
+other methods are available.
 }
 \description{
-This function displays a randomly statistical quote from
-a collection. The quotations are classified by topics
+Display a randomly chosen statistical quote.
 }
 \examples{
- set.seed(1234)
- statquote(123)
- statquote(source="Tukey")
- statquote(topic="science")
- statquote(topic="history")
+set.seed(1234)
+statquote()
+statquote(10)
+statquote("boggled")
+statquote(pattern="boggled")
+statquote(source="Yates")
+statquote(tag="anova")
+print.data.frame(statquote(302)) # All information
 
 }
 \seealso{
-\code{\link{quote_topics}}, \code{\link{search_quotes}}, \code{\link{quotes}},
-Inspired by: \code{gaussfact} (\code{https://github.com/eddelbuettel/gaussfacts}),
- \code{\link[fortunes:fortunes]{fortune}}
+\code{\link{quote_tags}}, \code{\link{search_quotes}}, \code{\link{quotes}},
+Inspired by: \code{\link[fortunes]{fortune}}
+
+\code{\link{as.latex}}, \code{\link{as.markdown}}
 }
