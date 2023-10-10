@@ -1,3 +1,11 @@
+# Version 0.3.2 (2023-10-09)
+
+This is a modest development release, enhancing display of quotations, and adding a vignette
+
+- `as.latex()` gains a `cite` argument to include citation in the results
+- `cite=TRUE` is now the default in `as.markdown()`, `as.latex()`, and  `search_quotes()`
+- Collected quotes vignette added for complete overview of quotes collection
+
 # Version 0.3.1 (2022-10-10)
 
 - This is a major release of the `statquotes` package, now using "tags" to classify quotations rather than

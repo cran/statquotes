@@ -1,6 +1,7 @@
 
 #' @importFrom utils data
 .get.sq <- function(){
+  #browser()
   .sq.env <- new.env()
   data(quotes, package = 'statquotes', envir = .sq.env)
   .sq.env$quotes
@@ -22,7 +23,7 @@
 #' @param source Character string. Quotes are subset to those matching
 #' the specified source (person).
 #'
-#' @param topic Deprecated. Use 'tag' instead. Only kept for backward compatability.
+#' @param topic Deprecated. Use 'tag' instead. Only kept for backward compatibility.
 
 #' @return
 #' A character vector containing one quote.
@@ -102,7 +103,7 @@ statquote <- function(ind=NULL, pattern=NULL, tag=NULL, source=NULL, topic=NULL)
 #' @param ...   Other optional arguments, unused here
 #' @export
 #'
-print.statquote <- function(x, cite = FALSE, width = NULL, ...) {
+print.statquote <- function(x, cite = TRUE, width = NULL, ...) {
     if (is.null(width)) width <- 0.9 * getOption("width")
     if (width < 10) stop("'width' must be greater than 10", call.=FALSE)
     x <- x[ ,c('text', 'source', 'cite')]
@@ -192,6 +193,8 @@ quote_tags <- function (table = FALSE) {
 #' @param form structure of the LaTeX output for the text (first argument)
 #'   and source (second argument) passed to \code{\link{sprintf}}
 #'
+#' @param cite logical; should the \code{cite} field be included in the source output?
+#'
 #' @return character vector of formatted LaTeX quotes
 #'
 #' @export
@@ -203,7 +206,7 @@ quote_tags <- function (table = FALSE) {
 #' as.latex(ll)
 #'
 
-as.latex <- function(quotes, form = "\\epigraph{%s}{%s}\n\n"){
+as.latex <- function(quotes, form = "\\epigraph{%s}{%s}\n\n", cite = TRUE){
 
   stopifnot('statquote' %in% class(quotes))
   #replace the common csv symbols with LaTeX versions
@@ -222,7 +225,8 @@ as.latex <- function(quotes, form = "\\epigraph{%s}{%s}\n\n"){
   }
 
   quotes$text <- symbols2tex(quotes$text)
-  quotes$source <- symbols2tex(quotes$source)
+  quotes$source <- if(cite) symbols2tex(paste0(quotes$source, ", ", quotes$cite))
+    else symbols2tex(quotes$source)
   lines <- NULL
   if(is.null(quotes$TeXsource)) quotes$TeXsource <- ""
   for(i in 1:nrow(quotes)){

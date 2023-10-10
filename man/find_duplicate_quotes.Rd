@@ -7,13 +7,13 @@
 find_duplicate_quotes()
 }
 \description{
-Returns a list with qid, source, and the text where strings are
-aggressively fuzzy matched.
+Returns a list with aggressively fuzzy matched quotations, along with their
+relevant citation information.
 }
 \examples{
 
 # As the number of quotes has grown, this has become very slow.
-# find_duplicate_quotes()
+# dups <- find_duplicate_quotes()
 
 
 }
