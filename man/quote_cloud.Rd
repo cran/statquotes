@@ -15,7 +15,7 @@ quote_cloud(search = ".*", max.words = 80, colors, ...)
 word frequency. The default is 5 levels, from light to dark green.}
 
 \item{...}{additional arguments passed to \code{\link{search_quotes}} and
-\code{\link{wordcloud}}}
+\code{\link[wordcloud]{wordcloud}}}
 }
 \value{
 None. A wordcloud is plotted.
@@ -32,5 +32,5 @@ quote_cloud(max.words = 10)
 }
 \seealso{
 \code{\link{statquote}}, \code{\link{quote_tags}}, \code{\link{quotes}},
-  \code{\link{search_quotes}}. \code{\link{wordcloud}}
+  \code{\link{search_quotes}}. \code{\link[wordcloud]{wordcloud}}
 }
